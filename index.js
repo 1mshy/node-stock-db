@@ -78,13 +78,8 @@ async function fetchStockData(symbol) {
     const currentDate = Math.floor(Date.now() / 1000); // Current date in seconds since epoch
     try {
         const response = await request_yahoo_big(symbol);
-        console.log(response.chart.result[0].meta);
         const data = response.chart.result[0];
-        console.log(`Data for ${symbol}:`);
-        console.log({
-            timestamps: data.timestamp,
-            closePrices: data.indicators.quote[0].close,
-        });
+        console.log(`Data for ${symbol} retrieved`);
         return response;
     } catch (error) {
         console.error(`Failed to fetch data for ${symbol}:`, error.message);
