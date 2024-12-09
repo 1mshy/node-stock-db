@@ -43,6 +43,16 @@ export function yahoo_to_structured(data) {
 }
 
 /**
+ *  cleans the ticker for the specifications of the yahoo api
+ * @param {string} ticker 
+ * @returns {string}
+ */
+export function clean_ticker_for_yahoo(ticker) {
+    if (!ticker) return "";
+    return `${ticker}`.replace("/", "-").replace("^", "-").replace("*", "-").replace(".", "-").replace(",", "-")
+}
+
+/**
  * @param {String} ticker_symbol 
  * @returns {Promise<{meta:{},values:[]}>}
  * @desc Request historical stock data from the Yahoo API from all time, with intervals of 1 day
@@ -96,19 +106,32 @@ async function fetchAllStockData() {
     })
         .then((response) => response.json())
         .then((data) => {
-            return data.data.rows.map((row) => row.symbol);
+            return data.data.rows.map((row) => clean_ticker_for_yahoo(row.symbol));
         });
     console.log(known_symbols);
     for (const symbol of known_symbols) {
+        try {
+            // Check if the file exists
+            await fs.access(`./db/${symbol}.json`);
+            console.log(`${symbol} already exists in db`);
+            continue;
+        } catch {
+            // File does not exist, proceed with fetching
+            console.log(`Fetching data for ${symbol}`);
+        }
         const everything = async () => {
-            const data = await fetchStockData(symbol);
-            fs.writeFile(`./db/${symbol}.json`, JSON.stringify(data, null, 0));
-            exec(`git add . && git commit -m "added ${symbol} to db"`, (err, stdout, stderr) => {
-                if (err) {
-                    console.error(err);
-                }
-                console.log(stdout);
-            });
+            try {
+                const data = await fetchStockData(symbol);
+                fs.writeFile(`./db/${symbol}.json`, JSON.stringify(data, null, 0));
+                exec(`git add . && git commit -m "added ${symbol} to db"`, (err, stdout, stderr) => {
+                    if (err) {
+                        console.error(err);
+                    }
+                    console.log(stdout);
+                });
+            } catch (error) {
+                console.error(`Failed to fetch data for ${symbol}:`, error.message);
+            }
         }
         await Promise.all([everything(), delay(2000)]);
     }
