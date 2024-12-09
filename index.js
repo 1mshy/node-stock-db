@@ -128,7 +128,7 @@ async function fetchAllStockData() {
                 console.error(`Failed to fetch data for ${symbol}:`, error.message);
             }
         }
-        await Promise.all([everything(), delay(2000)]);
+        await Promise.all([everything(), delay(1000)]);
     }
 }
 
