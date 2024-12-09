@@ -116,7 +116,9 @@ async function fetchAllStockData() {
         }
         const everything = async () => {
             try {
+                if (symbol === "" || symbol === "CON") return;
                 const data = await fetchStockData(symbol);
+
                 fs.writeFile(`./db/${symbol}.json`, JSON.stringify(data, null, 0));
                 exec(`git add . && git commit -m "added ${symbol} to db"`, (err, stdout, stderr) => {
                     if (err) {
