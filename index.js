@@ -79,7 +79,7 @@ async function fetchStockData(symbol) {
     try {
         const response = await request_yahoo_big(symbol);
         const data = response.chart.result[0];
-        console.log(`Data for ${symbol} retrieved`);
+        console.log(`Data for ${symbol} retrieved successfully`);
         return response;
     } catch (error) {
         console.error(`Failed to fetch data for ${symbol}:`, error.message);
