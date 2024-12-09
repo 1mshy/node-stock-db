@@ -99,8 +99,8 @@ async function fetchAllStockData() {
             return data.data.rows.map((row) => row.symbol);
         });
     console.log(known_symbols);
-    const everything = async () => {
-        for (const symbol of known_symbols) {
+    for (const symbol of known_symbols) {
+        const everything = async () => {
             const data = await fetchStockData(symbol);
             fs.writeFile(`./db/${symbol}.json`, JSON.stringify(data, null, 0));
             exec(`git add . && git commit -m "added ${symbol} to db"`, (err, stdout, stderr) => {
@@ -110,8 +110,8 @@ async function fetchAllStockData() {
                 console.log(stdout);
             });
         }
+        await Promise.all([everything(), delay(2000)]);
     }
-    await Promise.all([everything(), delay(2000)]);
 }
 
 // Start the script
